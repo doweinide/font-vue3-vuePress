@@ -1,0 +1,25 @@
+{
+  "name": "vuepress-official-website",
+  "version": "1.0.0",
+  "description": "Official website built with VuePress",
+  "scripts": {
+    "dev": "vuepress dev docs",
+    "build": "vuepress build docs",
+    "serve": "vuepress serve docs"
+  },
+  "devDependencies": {
+    "@vuepress/bundler-vite": "^2.0.0-rc.14",
+    "@vuepress/theme-default": "^2.0.0-rc.14",
+    "sass": "^1.89.2",
+    "vue": "^3.3.0",
+    "vuepress": "^2.0.0-rc.14"
+  },
+  "keywords": [
+    "vuepress",
+    "vue3",
+    "documentation",
+    "website"
+  ],
+  "author": "",
+  "license": "MIT"
+}
