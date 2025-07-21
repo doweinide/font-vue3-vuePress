@@ -6,7 +6,6 @@ export default defineUserConfig({
   lang: 'zh-CN',
   title: '官方网站',
   description: '基于VuePress Vue3构建的官方网站',
-  base: '/vitePress/',
   
   bundler: viteBundler({
     viteOptions: {
