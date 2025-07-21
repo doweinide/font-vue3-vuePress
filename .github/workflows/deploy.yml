@@ -22,5 +22,5 @@ jobs:
         uses: peaceiris/actions-gh-pages@v3  # 使用第三方 action 部署到 GitHub Pages
         with:
           github_token: ${{ secrets.GH_PAT }}  # GitHub 自动生成的 token
-          publish_dir: ./dist  # 要发布的目录，根据实际情况修改
+          publish_dir: ./docs/.vuepress/dist  # 要发布的目录，根据实际情况修改
           # publish_branch: gh-pages  # 发布到的分支，默认为 gh-pages
