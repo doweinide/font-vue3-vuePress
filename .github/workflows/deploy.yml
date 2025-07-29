@@ -1,4 +1,13 @@
 name: Build and Deploy to GitHub Pages # 📛 工作流程名称
+defaults:
+  run:
+    shell: bash
+
+env:
+  ACTIONS_STEP_DEBUG: true
+  ACTIONS_RUNTIME_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  # 👇关键：强制 artifact 上传改用 v4
+  ACTIONS_UPLOAD_ARTIFACT: actions/upload-artifact@v4
 
 on:
   push:
