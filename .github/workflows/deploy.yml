@@ -1,44 +1,59 @@
-name: Build and Deploy to GitHub Pages # 📛 工作流程名称
+name: Build and Deploy to GitHub Pages
+defaults:
+  run:
+    shell: bash
+
+env:
+  ACTIONS_STEP_DEBUG: true
+  ACTIONS_UPLOAD_ARTIFACT: actions/upload-artifact@v4
+  ACTIONS_DOWNLOAD_ARTIFACT: actions/download-artifact@v4
 
 on:
   push:
     branches:
-      - master # 🟢 master 分支有提交就触发
+      - master
 
 permissions:
-  contents: read # 允许读取仓库内容
-  pages: write # 允许写入 GitHub Pages（必须）
-  id-token: write # 身份验证（新版 Pages 要求）
+  contents: read
+  pages: write
+  id-token: write
 
 jobs:
-  build: # 🛠️ 构建项目
+  build:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4 # 🔍 检出源码
+      - uses: actions/checkout@v4
 
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 18 # 🎯 使用 Node 18
+          node-version: 18
+          cache: "npm"
 
-      - run: npm install # 📦 安装依赖
-      - run: npm run build # 🔧 构建项目（输出到 dist 或 vuepress 目录）
+      - name: Install dependencies
+        run: npm ci
 
-      - name: Upload artifact for Pages
-        uses: actions/upload-pages-artifact@v2 # ✅ 使用 GitHub Pages 专用上传方式
+      - name: Build project
+        run: npm run build
+
+      - name: Debug Action Versions
+        run: |
+          grep -r "upload-artifact@v3" .github/workflows/ || echo "未发现 upload-artifact@v3"
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v2
         with:
-          path: ./docs/.vuepress/dist # ⚠️ 改成你的构建输出路径
+          path: ./docs/.vuepress/dist
 
-  deploy: # 🚀 发布到 Pages
+  deploy:
     needs: build
     runs-on: ubuntu-latest
     environment:
       name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }} # 🌐 获取部署后的链接
+      url: ${{ steps.deployment.outputs.page_url }}
 
     steps:
       - name: Deploy to GitHub Pages
+        uses: actions/deploy-pages@v2
         id: deployment
-        uses: actions/deploy-pages@v2 # ✅ 官方 Pages 发布插件
-
