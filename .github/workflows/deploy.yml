@@ -1,26 +1,43 @@
-name: Deploy to GitHub Pages
+name: Build and Deploy to GitHub Pages # 📛 工作流程名称
 
 on:
   push:
     branches:
-      - master  # 监听 main 分支的推送事件
+      - master # 🟢 当 master 分支有 push 时触发部署
+
+permissions:
+  contents: read # 允许读取代码仓库内容（必须）
+  pages: write # 允许写入 GitHub Pages 页面（必须）
+  id-token: write # 用于验证身份，部署 Pages 时必须（新版 Pages 要求）
 
 jobs:
-  deploy:
-    runs-on: ubuntu-latest
+  build: # 🛠️ 第一个 Job：负责构建
+    runs-on: ubuntu-latest # 使用 GitHub 官方 Ubuntu 最新环境
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3  # 检出代码
+      - uses: actions/checkout@v4 # 第一步：检出源码
 
-      - name: Build (如果需要构建)
-        run: |
-          npm install  # 安装依赖
-          npm run build  # 执行构建命令
-
-      - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v3  # 使用第三方 action 部署到 GitHub Pages
+      - name: Setup Node
+        uses: actions/setup-node@v4 # 设置 Node.js 环境
         with:
-          github_token: ${{ secrets.GH_PAT }}  # GitHub 自动生成的 token
-          publish_dir: ./docs/.vuepress/dist  # 要发布的目录，根据实际情况修改
-          # publish_branch: gh-pages  # 发布到的分支，默认为 gh-pages
+          node-version: 18 # 这里用的是 Node 18，可根据项目需要调整
+
+      - run: npm install # 安装依赖
+      - run: npm run build # 构建项目，生成静态页面文件（比如 dist）
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v2 # 📦 上传构建产物（Artifact）供 Pages 部署使用
+        with:
+          path: ./docs/.vuepress/dist # 设置构建输出路径，⚠️ 请按实际项目调整！
+
+  deploy: # 🚀 第二个 Job：部署到 GitHub Pages
+    needs: build # ✅ 等 build Job 完成后再执行
+    runs-on: ubuntu-latest # 同样使用 Ubuntu 环境
+    environment:
+      name: github-pages # 指定部署到的环境名称（必须）
+      url: ${{ steps.deployment.outputs.page_url }} # 自动获取部署成功后的链接
+
+    steps:
+      - name: Deploy to GitHub Pages
+        uses: actions/deploy-pages@v2 # 📤 使用官方 Action，将 artifact 自动部署到 GitHub Pages
+        id: deployment # 给这个步骤取个 ID，用于后面引用部署链接
