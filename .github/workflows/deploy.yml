@@ -3,11 +3,6 @@ defaults:
   run:
     shell: bash
 
-env:
-  ACTIONS_STEP_DEBUG: true
-  ACTIONS_UPLOAD_ARTIFACT: actions/upload-artifact@v4
-  ACTIONS_DOWNLOAD_ARTIFACT: actions/download-artifact@v4
-
 on:
   push:
     branches:
@@ -21,31 +16,25 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v4
-      - name: Configure Pages
-        uses: actions/configure-pages@v5
+
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: 18
           cache: "npm"
 
-      - name: Install dependencies
-        run: npm ci
+      - run: npm ci
+      - run: npm run build
 
-      - name: Build project
-        run: npm run build
-
-      - name: Debug Action Versions
-        run: |
-          grep -r "upload-artifact@v3" .github/workflows/ || echo "未发现 upload-artifact@v3"
-
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v2
+      # 直接使用 upload-artifact@v4 上传构建产物
+      - name: Upload artifact with v4
+        uses: actions/upload-artifact@v4  # 显式使用 v4 版本
         with:
-          path: ./docs/.vuepress/dist
+          name: github-pages-artifact  # 必须指定名称，部署时需要引用
+          path: ./docs/.vuepress/dist  # 构建产物路径
+          retention-days: 1  # 保留 1 天（可选，默认 90 天）
 
   deploy:
     needs: build
@@ -53,8 +42,16 @@ jobs:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-
     steps:
+      # 部署前需要先下载 artifact（这一步是关键！）
+      - name: Download artifact
+        uses: actions/download-artifact@v4  # 对应 v4 版本
+        with:
+          name: github-pages-artifact  # 必须与上传时的名称一致
+          path: ./artifact  # 下载到本地的路径
+
       - name: Deploy to GitHub Pages
         uses: actions/deploy-pages@v4
+        with:
+          source: ./artifact  # 指定部署的源路径（即下载后的 artifact 路径）
         id: deployment
