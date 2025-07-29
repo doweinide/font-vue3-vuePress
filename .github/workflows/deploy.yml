@@ -32,7 +32,7 @@ jobs:
       - name: Upload artifact with v4
         uses: actions/upload-artifact@v4  # 显式使用 v4 版本
         with:
-          name: github-pages-artifact  # 必须指定名称，部署时需要引用
+          name: github-pages  # 必须指定名称，部署时需要引用
           path: ./docs/.vuepress/dist  # 构建产物路径
           retention-days: 1  # 保留 1 天（可选，默认 90 天）
 
@@ -47,7 +47,7 @@ jobs:
       - name: Download artifact
         uses: actions/download-artifact@v4  # 对应 v4 版本
         with:
-          name: github-pages-artifact  # 必须与上传时的名称一致
+          name: github-pages  # 必须与上传时的名称一致
           path: ./artifact  # 下载到本地的路径
 
       - name: Deploy to GitHub Pages
