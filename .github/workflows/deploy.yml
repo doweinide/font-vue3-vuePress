@@ -43,7 +43,7 @@ jobs:
           grep -r "upload-artifact@v3" .github/workflows/ || echo "未发现 upload-artifact@v3"
 
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v4
+        uses: actions/upload-pages-artifact@v2
         with:
           path: ./docs/.vuepress/dist
 
